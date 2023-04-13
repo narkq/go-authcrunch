@@ -17,6 +17,12 @@ package authn
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
+	"path"
+	"strings"
+	"time"
+
 	"github.com/greenpau/go-authcrunch/pkg/authn/enums/operator"
 	"github.com/greenpau/go-authcrunch/pkg/idp"
 	"github.com/greenpau/go-authcrunch/pkg/ids"
@@ -25,11 +31,6 @@ import (
 	"github.com/greenpau/go-authcrunch/pkg/util"
 	addrutil "github.com/greenpau/go-authcrunch/pkg/util/addr"
 	"go.uber.org/zap"
-	"net/http"
-	"net/url"
-	"path"
-	"strings"
-	"time"
 )
 
 func (p *Portal) handleHTTPLogin(ctx context.Context, w http.ResponseWriter, r *http.Request, rr *requests.Request, usr *user.User) error {
@@ -295,7 +296,7 @@ func (p *Portal) authorizeLoginRequest(ctx context.Context, w http.ResponseWrite
 	m := make(map[string]interface{})
 
 	switch rr.Upstream.Method {
-	case "oauth2", "saml":
+	case "oauth2", "saml", "telegram":
 		switch pm := rr.Response.Payload.(type) {
 		case map[string]interface{}:
 			m = pm

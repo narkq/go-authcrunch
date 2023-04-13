@@ -83,6 +83,8 @@ func (icon *LoginIcon) Configure(s string) {
 			icon.ClassName = "las la-shield-alt la-2x"
 		case "local":
 			icon.ClassName = "las la-key la-2x"
+		case "telegram":
+			icon.ClassName = "lab la-telegram la-2x"
 		default:
 			icon.ClassName = "lab la-codepen la-2x"
 		}
@@ -135,6 +137,8 @@ func (icon *LoginIcon) Configure(s string) {
 		case "aws", "amazon", "cognito":
 			// MaterializeCSS "blue-grey darken-2"
 			icon.BackgroundColor = "#455a64"
+		case "telegram":
+			icon.BackgroundColor = "#0088cc"
 		case "ldap":
 			icon.BackgroundColor = "#324960"
 		case "local":
@@ -164,6 +168,8 @@ func (icon *LoginIcon) Configure(s string) {
 			icon.Text = "AWS"
 		case "amazon":
 			icon.Text = "Amazon"
+		case "telegram":
+			icon.Text = "Telegram"
 		default:
 			icon.Text = icon.Realm
 		}
@@ -200,6 +206,8 @@ func (icon *LoginIcon) Configure(s string) {
 		case "aws", "amazon", "cognito":
 			// MaterializeCSS "blue-grey darken-2"
 			icon.BackgroundColor = "#455a64"
+		case "telegram":
+			icon.BackgroundColor = "#0088cc"
 		case "ldap":
 			icon.BackgroundColor = "#324960"
 		case "local":

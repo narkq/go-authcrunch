@@ -62,4 +62,10 @@ const (
 	ErrIdentityProviderOauthMetadataFetchFailed                 StandardError = "failed to fetch metadata for OAuth 2.0 authorization server: %s"
 	ErrIdentityProviderOauthGetAccessTokenFailed                StandardError = "failed obtaining OAuth 2.0 access token, error: %v"
 	ErrIdentityProviderAuthorizationServerResponseFieldNotFound StandardError = "authorization server response has no %q field"
+
+	ErrIdentityProviderTelegramFetchClaimsFailed    StandardError = "failed fetching telegram claims: %s"
+	ErrIdentityProviderTelegramHashValidationFailed StandardError = "telegram authentication reply has invalid hash: %v"
+	ErrIdentityProviderTelegramAuthDateMissing      StandardError = "telegram authentication reply does not contain 'auth_date' field: %v"
+	ErrIdentityProviderTelegramAuthDateInvalid      StandardError = "telegram authentication reply must have 'auth_date' field with a unix timestamp value, got %q instead"
+	ErrIdentityProviderTelegramTokenExpired         StandardError = "telegram authentication reply is too old: %s elapsed, must be no older that %s ago"
 )

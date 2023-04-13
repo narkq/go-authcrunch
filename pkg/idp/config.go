@@ -17,9 +17,11 @@ package idp
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/greenpau/go-authcrunch/pkg/errors"
 	"github.com/greenpau/go-authcrunch/pkg/idp/oauth"
 	"github.com/greenpau/go-authcrunch/pkg/idp/saml"
+	"github.com/greenpau/go-authcrunch/pkg/idp/telegram"
 )
 
 // IdentityProviderConfig represents an identity provider configuration.
@@ -129,6 +131,15 @@ func (cfg *IdentityProviderConfig) Validate() error {
 	b, _ := json.Marshal(cfg.Params)
 	switch cfg.Kind {
 	case "oauth":
+		if telegram.MatchDriver(cfg.Params) {
+			config := &telegram.Config{}
+			json.Unmarshal(b, config)
+			config.Name = cfg.Name
+			if err := config.Validate(); err != nil {
+				return errors.ErrIdentityProviderConfigInvalid.WithArgs(err)
+			}
+			return nil
+		}
 		config := &oauth.Config{}
 		json.Unmarshal(b, config)
 		config.Name = cfg.Name

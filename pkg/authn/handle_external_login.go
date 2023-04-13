@@ -16,11 +16,12 @@ package authn
 
 import (
 	"context"
+	"net/http"
+	"strings"
+
 	"github.com/greenpau/go-authcrunch/pkg/authn/enums/operator"
 	"github.com/greenpau/go-authcrunch/pkg/requests"
 	"go.uber.org/zap"
-	"net/http"
-	"strings"
 )
 
 func (p *Portal) handleHTTPExternalLogin(ctx context.Context, w http.ResponseWriter, r *http.Request, rr *requests.Request, authMethod string) error {
@@ -113,6 +114,25 @@ func (p *Portal) handleJavascriptCallbackIntercept(ctx context.Context, w http.R
   <body>
     <p>Redirecting to authentication endpoint.</p>
     <script>
+      // this function is copied from https://telegram.org/js/telegram-widget.js?22
+      function haveTgAuthResult() {
+        var locationHash = '', re = /[#\?\&]tgAuthResult=([A-Za-z0-9\-_=]*)$/, match;
+        try {
+          locationHash = location.hash.toString();
+          if (match = locationHash.match(re)) {
+            location.hash = locationHash.replace(re, '');
+            var data = match[1] || '';
+            data = data.replace(/-/g, '+').replace(/_/g, '/');
+            var pad = data.length % 4;
+            if (pad > 1) {
+              data += new Array(5 - pad).join('=');
+            }
+            return JSON.parse(window.atob(data));
+          }
+        } catch (e) {}
+        return false;
+      }
+
       let redirectURL = window.location.href;
       const i = redirectURL.indexOf("#");
       if (i < 0) {
@@ -120,7 +140,16 @@ func (p *Portal) handleJavascriptCallbackIntercept(ctx context.Context, w http.R
         window.location = redirectURL;
       } else {
         redirectURI = redirectURL.slice(0, i).replace('authorization-code-js-callback', 'authorization-code-callback');
-        window.location = redirectURI + "?" + redirectURL.slice(i+1);
+        redirectQuery = redirectURL.slice(i+1);
+        const tgAuthResult = haveTgAuthResult();
+        if (tgAuthResult) {
+          let params = [];
+          for (var key in tgAuthResult) {
+            params.push(key + '=' + encodeURIComponent(tgAuthResult[key]));
+          }
+          redirectQuery = params.join('&');
+        }
+        window.location = redirectURI + "?" + redirectQuery;
       }
     </script>
   </body>

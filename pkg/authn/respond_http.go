@@ -16,15 +16,16 @@ package authn
 
 import (
 	"context"
+	"net/http"
+	"net/url"
+	"path"
+	"strings"
+
 	"github.com/greenpau/go-authcrunch/pkg/requests"
 	"github.com/greenpau/go-authcrunch/pkg/user"
 	"github.com/greenpau/go-authcrunch/pkg/util"
 	addrutil "github.com/greenpau/go-authcrunch/pkg/util/addr"
 	"go.uber.org/zap"
-	"net/http"
-	"net/url"
-	"path"
-	"strings"
 )
 
 func (p *Portal) handleHTTP(ctx context.Context, w http.ResponseWriter, r *http.Request, rr *requests.Request) error {
@@ -57,6 +58,8 @@ func (p *Portal) handleHTTP(ctx context.Context, w http.ResponseWriter, r *http.
 		return p.handleHTTPExternalLogin(ctx, w, r, rr, "saml")
 	case strings.Contains(r.URL.Path, "/oauth2/"):
 		return p.handleHTTPExternalLogin(ctx, w, r, rr, "oauth2")
+	case strings.Contains(r.URL.Path, "/telegram/"):
+		return p.handleHTTPExternalLogin(ctx, w, r, rr, "telegram")
 	case strings.Contains(r.URL.Path, "/basic/login/"):
 		return p.handleHTTPBasicLogin(ctx, w, r, rr)
 	case strings.HasSuffix(r.URL.Path, "/logout"):

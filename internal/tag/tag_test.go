@@ -17,6 +17,9 @@ package tag
 import (
 	"bufio"
 	"fmt"
+	"strings"
+	"unicode"
+
 	"github.com/greenpau/go-authcrunch"
 	"github.com/greenpau/go-authcrunch/internal/tests"
 	"github.com/greenpau/go-authcrunch/internal/testutils"
@@ -40,6 +43,7 @@ import (
 	"github.com/greenpau/go-authcrunch/pkg/idp"
 	"github.com/greenpau/go-authcrunch/pkg/idp/oauth"
 	"github.com/greenpau/go-authcrunch/pkg/idp/saml"
+	"github.com/greenpau/go-authcrunch/pkg/idp/telegram"
 	"github.com/greenpau/go-authcrunch/pkg/ids"
 	"github.com/greenpau/go-authcrunch/pkg/ids/ldap"
 	"github.com/greenpau/go-authcrunch/pkg/ids/local"
@@ -51,8 +55,6 @@ import (
 	"github.com/greenpau/go-authcrunch/pkg/user"
 	"github.com/greenpau/go-authcrunch/pkg/util"
 	"github.com/greenpau/go-authcrunch/pkg/util/cfg"
-	"strings"
-	"unicode"
 
 	"os"
 	"path/filepath"
@@ -600,6 +602,17 @@ func TestTagCompliance(t *testing.T) {
 			},
 		},
 		{
+			name:  "test telegram.Config struct",
+			entry: &telegram.Config{},
+			opts: &Options{
+				AllowFieldMismatch: true,
+				AllowedFields: map[string]interface{}{
+					"client_secret":      true,
+					"user_group_filters": true,
+				},
+			},
+		},
+		{
 			name:  "test cookie.Factory struct",
 			entry: &cookie.Factory{},
 			opts:  &Options{},
@@ -657,6 +670,11 @@ func TestTagCompliance(t *testing.T) {
 		{
 			name:  "test oauth.Backend struct",
 			entry: &oauth.IdentityProvider{},
+			opts:  &Options{},
+		},
+		{
+			name:  "test telegram.Backend struct",
+			entry: &telegram.IdentityProvider{},
 			opts:  &Options{},
 		},
 		{

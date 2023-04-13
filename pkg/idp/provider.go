@@ -22,6 +22,7 @@ import (
 	"github.com/greenpau/go-authcrunch/pkg/errors"
 	"github.com/greenpau/go-authcrunch/pkg/idp/oauth"
 	"github.com/greenpau/go-authcrunch/pkg/idp/saml"
+	"github.com/greenpau/go-authcrunch/pkg/idp/telegram"
 	"github.com/greenpau/go-authcrunch/pkg/requests"
 	"go.uber.org/zap"
 )
@@ -58,6 +59,14 @@ func NewIdentityProvider(cfg *IdentityProviderConfig, logger *zap.Logger) (Ident
 
 	switch cfg.Kind {
 	case "oauth":
+		if telegram.MatchDriver(cfg.Params) {
+			config := &telegram.Config{}
+			if err := json.Unmarshal(b, config); err != nil {
+				return nil, errors.ErrIdentityProviderNewConfig.WithArgs(cfg.Params, err)
+			}
+			config.Name = cfg.Name
+			return telegram.NewIdentityProvider(config, logger)
+		}
 		config := &oauth.Config{}
 		if err := json.Unmarshal(b, config); err != nil {
 			return nil, errors.ErrIdentityProviderNewConfig.WithArgs(cfg.Params, err)
