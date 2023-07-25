@@ -16,6 +16,7 @@ package bypass
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"regexp"
 	"strings"
@@ -30,6 +31,7 @@ const (
 	bypassMatchPrefix  bypassMatchStrategy = 3
 	bypassMatchSuffix  bypassMatchStrategy = 4
 	bypassMatchRegex   bypassMatchStrategy = 5
+	bypassMatchIPNet   bypassMatchStrategy = 6
 )
 
 // Config contains the entry for the authorization bypass.
@@ -38,6 +40,7 @@ type Config struct {
 	URI       string `json:"uri,omitempty" xml:"uri,omitempty" yaml:"uri,omitempty"`
 	match     bypassMatchStrategy
 	regex     *regexp.Regexp
+	ipnet     *net.IPNet
 }
 
 // Validate validates Config
@@ -53,6 +56,19 @@ func (b *Config) Validate() error {
 		b.match = bypassMatchSuffix
 	case "regex":
 		b.match = bypassMatchRegex
+	case "remote_addr":
+		b.match = bypassMatchIPNet
+		if b.ipnet == nil {
+			if b.URI == "" {
+				return fmt.Errorf("undefined bypass ip net")
+			}
+			_, ipnet, err := net.ParseCIDR(b.URI)
+			if err != nil {
+				return fmt.Errorf("invalid %q bypass ip net", b.URI)
+			}
+			b.ipnet = ipnet
+		}
+		return nil
 	case "":
 		return fmt.Errorf("undefined bypass match type")
 	default:
@@ -96,6 +112,16 @@ func Match(r *http.Request, cfgs []*Config) bool {
 			if cfg.regex.MatchString(r.URL.Path) {
 				return true
 			}
+		case bypassMatchIPNet:
+			host, _, err := net.SplitHostPort(r.RemoteAddr)
+			if err != nil {
+				return false
+			}
+			ip := net.ParseIP(host)
+			if ip == nil {
+				return false
+			}
+			return cfg.ipnet.Contains(ip)
 		}
 	}
 	return false
